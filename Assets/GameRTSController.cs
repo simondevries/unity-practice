@@ -5,15 +5,16 @@ using CodeMonkey.Utils;
 
 public class GameRTSController : MonoBehaviour
 {
-
+    [SerializeField] private Transform selectionAreaTransform;
 
     private Vector3 startPoistion;
 
     private List<UnitRTS> SelectedUnitRTSList;
     
-    public GameRTSController()
+    private void Awake()
     {
         SelectedUnitRTSList = new List<UnitRTS>();
+        selectionAreaTransform.gameObject.SetActive(false);
     }
     
     // Update is called once per frame
@@ -21,11 +22,24 @@ public class GameRTSController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            selectionAreaTransform.gameObject.SetActive(true);
             startPoistion = UtilsClass.GetMouseWorldPosition();
         }
 
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButton(0))
         {
+            var mouseWorldPosition = UtilsClass.GetMouseWorldPosition();
+            var lowerLeft = new Vector3(Mathf.Min(startPoistion.x, mouseWorldPosition.x),
+                Mathf.Min(startPoistion.y, mouseWorldPosition.y));
+            var upperRight  = new Vector3(Mathf.Max(startPoistion.x, mouseWorldPosition.x), Mathf.Max(startPoistion.y, mouseWorldPosition.y));
+            selectionAreaTransform.position = lowerLeft;
+            selectionAreaTransform.localScale = upperRight - lowerLeft;
+        }
+        
+        if (Input.GetMouseButtonUp(0))
+        {            
+            selectionAreaTransform.gameObject.SetActive(false);
+
             Collider2D[] collider2DArray = Physics2D.OverlapAreaAll(startPoistion, UtilsClass.GetMouseWorldPosition());
             Debug.Log("#####");
             
